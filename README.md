@@ -34,6 +34,32 @@ Tùy chọn thêm:
 - `--system`: system prompt để điều chỉnh cách trả lời (mặc định đã tối ưu cho giao thông VN nếu chọn `--domain traffic`).
 - `--domain`: `traffic` (mặc định) để chỉ trả lời trong phạm vi luật giao thông; `general` cho phạm vi rộng.
 
+### 4.1) Chế độ structured và định dạng câu trả lời
+- `--structured`: ép model trả lời JSON theo schema, sau đó script kết xuất thành câu trả lời rõ ràng.
+- `--style`: `plain` (không bảng), `markdown`, hoặc `strict` (đánh số mục 1., 2., 3. như ví dụ luật). Gợi ý dùng `strict` cho dữ liệu huấn luyện.
+
+Ví dụ structured + strict:
+```powershell
+python .\generate_dataset.py --model "gpt-oss:20b" --out .\dataset_traffic_strict.csv --domain traffic --auto 50 --structured --retries 2 --style strict --num-ctx 4096 --temperature 0.2 --top-p 0.9 --repeat-penalty 1.1 --seed 42
+```
+
+### 4.2) Chạy song song (đa luồng)
+- `--workers N`: số luồng gọi mô hình song song (đề xuất 2–4). Nếu thấy chậm hoặc nghẽn GPU/CPU, giảm N.
+
+Ví dụ:
+```powershell
+python .\generate_dataset.py --model "gpt-oss:20b" --out .\dataset_traffic_strict.csv --domain traffic --auto 100 --structured --style strict --workers 4
+```
+
+### 4.3) Chế độ chạy liên tục đến khi dừng
+- `--infinite`: tự sinh câu hỏi phức tạp và ghi từng dòng cho đến khi bạn nhấn Ctrl+C.
+- `--sleep`: tạm dừng giữa các lượt (giây), mặc định 0.
+
+Ví dụ chạy liên tục (nhấn Ctrl+C để dừng):
+```powershell
+python .\generate_dataset.py --model "gpt-oss:20b" --out .\dataset_traffic_stream.csv --domain traffic --structured --style strict --workers 2 --num-ctx 4096 --temperature 0.2 --top-p 0.9 --repeat-penalty 1.1 --infinite --sleep 0.0
+```
+
 ### 5) Gợi ý models
 - `llama3.1:8b` (nhẹ, nhanh)
 - `qwen2.5:7b`
