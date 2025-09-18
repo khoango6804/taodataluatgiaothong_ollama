@@ -62,9 +62,23 @@ python .\generate_dataset.py --model "gpt-oss:20b" --out .\dataset_traffic_strea
 
 ### 5) Gợi ý models
 - `llama3.1:8b` (nhẹ, nhanh)
-- `qwen2.5:7b`
-- `phi3:mini`
+- `qwen2.5:7b` (cân bằng)
+- `cnshenyang/qwen3-nothink:30b` (chất lượng cao, cần VRAM lớn)
+- `gpt-oss:20b` (chất lượng tốt)
+- `gemma3:12b` (ổn định)
+- `phi3:mini` (rất nhẹ)
 
 > Lưu ý: Chat model không có bảo đảm chính xác tuyệt đối. Hãy kiểm chứng và bổ sung dẫn chiếu văn bản pháp luật theo nhu cầu.
+
+### 6) Cấu hình cho model lớn (20B-30B)
+Model `cnshenyang/qwen3-nothink:30b` cần VRAM cao, khuyến nghị:
+- Giảm `--num-ctx` xuống 2048-3072 nếu thiếu VRAM
+- Dùng `--workers 1-2` để tránh quá tải
+- Tăng `--temperature` lên 0.3-0.4 cho đa dạng hơn
+
+Ví dụ chạy qwen3-nothink 30B:
+```powershell
+python .\generate_dataset.py --model "cnshenyang/qwen3-nothink:30b" --out .\dataset_qwen3.csv --domain traffic --structured --style strict --workers 2 --num-ctx 3072 --temperature 0.3 --top-p 0.9 --repeat-penalty 1.1 --infinite --sleep 0.0
+```
 
 

@@ -123,6 +123,14 @@ def render_answer_from_json(payload: Dict[str, object], style: str) -> str:
 
 
 def render_strict_answer(payload: Dict[str, object]) -> str:
+    if not isinstance(payload, dict):
+        payload = {
+            "question": "",
+            "summary": str(payload),
+            "violations": [],
+            "citations": [],
+            "penalties": [],
+        }
     question = str(payload.get("question", "")).strip()
     citations = payload.get("citations", []) or []
     penalties = payload.get("penalties", []) or []
@@ -263,7 +271,14 @@ def generate_dataset(
                         options,
                     )
                     try:
-                        payload = json.loads(raw)
+                        parsed = json.loads(raw)
+                        payload = parsed if isinstance(parsed, dict) else {
+                            "question": q,
+                            "summary": str(parsed),
+                            "violations": [],
+                            "citations": [],
+                            "penalties": [],
+                        }
                         break
                     except Exception:
                         if attempt > max(retries, 0):
@@ -470,7 +485,14 @@ def main() -> None:
                     if args.structured:
                         raw = _one(gen_list)
                         try:
-                            payload = json.loads(raw)
+                            parsed = json.loads(raw)
+                            payload = parsed if isinstance(parsed, dict) else {
+                                "question": q,
+                                "summary": str(parsed),
+                                "violations": [],
+                                "citations": [],
+                                "penalties": [],
+                            }
                         except Exception:
                             payload = {"question": q, "summary": raw, "violations": [], "citations": [], "penalties": []}
                         ans = render_strict_answer(payload) if args.style == "strict" else render_answer_from_json(payload, args.style)
